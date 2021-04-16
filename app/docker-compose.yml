@@ -3,7 +3,16 @@ services:
   conduit:
     build: .
     environment:
-     - ASPNETCORE_Conduit_DatabaseProvider=${ASPNETCORE_Conduit_DatabaseProvider}
-     - ASPNETCORE_Conduit_ConnectionString=${ASPNETCORE_Conduit_ConnectionString}
+      ASPNETCORE_Conduit_DatabaseProvider: "sqlserver"
+      ASPNETCORE_Conduit_ConnectionString: "Server=db;Database=conduit;User Id=sa;Password=tEst@12345;"
     ports:
      - "5000:5000"
+    links:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-CU10-ubuntu-20.04
+    restart: always
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: tEst@12345
+      MSSQL_PID: Developer
