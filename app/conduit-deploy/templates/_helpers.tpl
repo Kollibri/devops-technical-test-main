@@ -1,8 +1,8 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "devopstest-webapi-chart.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "conduit-deploy.name" -}}
+{{- default .Chart.Name .Values.api.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -10,11 +10,11 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "devopstest-webapi-chart.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- define "conduit-deploy.fullname" -}}
+{{- if .Values.api.fullnameOverride }}
+{{- .Values.api.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- $name := default .Chart.Name .Values.api.nameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "devopstest-webapi-chart.chart" -}}
+{{- define "conduit-deploy.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "devopstest-webapi-chart.labels" -}}
-helm.sh/chart: {{ include "devopstest-webapi-chart.chart" . }}
-{{ include "devopstest-webapi-chart.selectorLabels" . }}
+{{- define "conduit-deploy.labels" -}}
+helm.sh/chart: {{ include "conduit-deploy.chart" . }}
+{{ include "conduit-deploy.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,18 +45,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "devopstest-webapi-chart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "devopstest-webapi-chart.name" . }}
+{{- define "conduit-deploy.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "conduit-deploy.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "devopstest-webapi-chart.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "devopstest-webapi-chart.fullname" .) .Values.serviceAccount.name }}
+{{- define "conduit-deploy.serviceAccountName" -}}
+{{- if .Values.api.serviceAccount.create }}
+{{- default (include "conduit-deploy.fullname" .) .Values.api.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.api.serviceAccount.name }}
 {{- end }}
 {{- end }}

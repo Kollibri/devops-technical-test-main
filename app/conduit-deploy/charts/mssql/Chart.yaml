@@ -1,0 +1,7 @@
+apiVersion: v1
+description: Helm Chart for Conduit
+name: conduit-db
+version: 0.0.1
+home: 
+sources:
+deprecated: false

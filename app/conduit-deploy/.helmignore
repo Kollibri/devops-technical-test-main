@@ -1,0 +1,5 @@
+# Match any file or path named .git
+.git
+
+# OWNERS file for Kubernetes
+OWNERS

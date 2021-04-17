@@ -1,0 +1,25 @@
+{{- if .Values.api.ingress.enabled -}}
+{{- $fullName := include "conduit-deploy.fullname" . -}}
+{{- $svcPort := .Values.api.service.port -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "conduit-deploy.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - http:
+        paths:
+        - path: /
+          # pathType: Prefix
+          backend:
+            # service:
+            #   name: {{ $fullName }}
+            #   port:
+            #     number: {{ $svcPort }}
+            serviceName: {{ $fullName }}
+            servicePort: {{ $svcPort }}
+{{- end }}
