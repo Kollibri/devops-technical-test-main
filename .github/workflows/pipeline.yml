@@ -6,20 +6,18 @@ jobs:
   lint:
     name: Linters
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: app
     steps:
       - uses: actions/checkout@v2
       
       - name: Lint Docker Image
         uses: hadolint/hadolint-action@v1.4.0
+        with:
+          dockerfile: ./app/Dockerfile
           
       - name: Lint Helm Chart
         uses: hiberbee/github-action-helm@latest
         with:
-          helm-command: lint ./conduit-deploy/
+          helm-command: lint ./app/conduit-deploy/
   docker:
     name: Build & Push Docker Image
     needs: lint
