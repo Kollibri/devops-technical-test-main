@@ -3,8 +3,8 @@ name: ci
 on: [push]
 
 jobs:
-  docker:
-    name: Build & Push Docker Image
+  lint:
+    name: Linters
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -12,10 +12,32 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v2
+      
+      - name: Lint Docker Image
+        uses: hadolint/hadolint-action@v1.4.0
+        with:
+          dockerfile: Dockerfile
+          
+      - name: Lint Helm Chart
+        uses: hiberbee/github-action-helm@latest
+        with:
+          helm-command: lint ./conduit-deploy/
+  docker:
+    name: Build & Push Docker Image
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v2
+      
       - name: Build Docker Image
         id: docker_build
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devopstest:latest .
+          
       - name: Push Docker Image
         id: docker_push
         run: |
@@ -31,19 +53,21 @@ jobs:
         shell: bash
         working-directory: app
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.3.1
+      - uses: actions/checkout@v2
+
+      - name: Start Minikube
+        id: minikube
+        uses: hiberbee/github-action-minikube@master
         with:
-          minikube version: 'v1.19.0'
-          kubernetes version: 'v1.21.0'
-          github token: ${{ secrets.GITHUB_TOKEN }}
+          minikube-version: '1.19.0'
+          kubernetes-version: '1.21.0'
+          addons: 'ingress'
+          
+      - name: Get Minikube IP
+        run: echo ${{ steps.minikube.outputs.ip }}
+
       - name: Deploy Helm Chart
-        uses: WyriHaximus/github-action-helm3@v2
+        uses: hiberbee/github-action-helm@latest
         with:
-          exec: helm upgrade conduit-api ./conduit-deploy/ --install --wait --namespace=default
-      - name: Test Helm Deployment
-        uses: WyriHaximus/github-action-helm3@v2
-        with:
-          exec: helm test conduit-api
+          helm-command: upgrade conduit-app ./conduit-deploy/ --install --wait --namespace=default
+          
