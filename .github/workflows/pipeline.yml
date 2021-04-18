@@ -46,10 +46,6 @@ jobs:
     name: Deploy to Kubernetes
     needs: docker
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: app
     steps:
       - uses: actions/checkout@v2
 
@@ -67,5 +63,5 @@ jobs:
       - name: Deploy Helm Chart
         uses: hiberbee/github-action-helm@latest
         with:
-          helm-command: upgrade conduit-app ./conduit-deploy/ --install --wait --namespace=default
+          helm-command: upgrade conduit-app ./app/conduit-deploy/ --install --wait --namespace=default
           
