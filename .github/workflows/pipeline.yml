@@ -19,11 +19,12 @@ jobs:
       - name: Push Docker Image
         id: docker_push
         run: |
-          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin ${{ secrets.DOCKERHUB_TOKEN }}
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker image push ${{ secrets.DOCKERHUB_USERNAME }}/devopstest:latest
 
   helm:
     name: Deploy to Kubernetes
+    needs: docker
     runs-on: ubuntu-latest
     defaults:
       run:
