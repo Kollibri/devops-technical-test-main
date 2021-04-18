@@ -13,11 +13,13 @@ jobs:
         uses: hadolint/hadolint-action@v1.4.0
         with:
           dockerfile: ./app/Dockerfile
+        continue-on-error: true
           
       - name: Lint Helm Chart
         uses: hiberbee/github-action-helm@latest
         with:
           helm-command: lint ./app/conduit-deploy/
+        continue-on-error: true
   docker:
     name: Build & Push Docker Image
     needs: lint
