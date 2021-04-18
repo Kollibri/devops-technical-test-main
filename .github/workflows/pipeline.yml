@@ -39,5 +39,7 @@ jobs:
           minikube version: 'v1.19.0'
           kubernetes version: 'v1.21.0'
           github token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Interact with the cluster
-        run: kubectl get nodes
+      - name: Deploy Helm Chart
+        uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm install conduit-api .\conduit-deploy\ --wait --namespace=default
