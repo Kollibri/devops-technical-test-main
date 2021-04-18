@@ -55,7 +55,7 @@ jobs:
 
       - name: Start Minikube
         id: minikube
-        uses: hiberbee/github-action-minikube@master
+        uses: hiberbee/github-action-minikube@latest
         with:
           minikube-version: '1.19.0'
           kubernetes-version: '1.21.0'
