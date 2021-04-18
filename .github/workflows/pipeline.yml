@@ -1,0 +1,67 @@
+name: ci
+
+on: [push]
+
+jobs:
+  lint:
+    name: Linters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Lint Docker Image
+        uses: hadolint/hadolint-action@v1.4.0
+        with:
+          dockerfile: ./app/Dockerfile
+        continue-on-error: true
+          
+      - name: Lint Helm Chart
+        uses: hiberbee/github-action-helm@latest
+        with:
+          helm-command: lint ./app/conduit-deploy/
+        continue-on-error: true
+  docker:
+    name: Build & Push Docker Image
+    needs: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build Docker Image
+        id: docker_build
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devopstest:latest .
+          
+      - name: Push Docker Image
+        id: docker_push
+        run: |
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+          docker image push ${{ secrets.DOCKERHUB_USERNAME }}/devopstest:latest
+
+  helm:
+    name: Deploy to Kubernetes
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Start Minikube
+        id: minikube
+        uses: hiberbee/github-action-minikube@latest
+        with:
+          minikube-version: '1.19.0'
+          kubernetes-version: '1.21.0'
+          addons: 'ingress'
+          
+      - name: Get Minikube IP
+        run: echo ${{ steps.minikube.outputs.ip }}
+
+      - name: Deploy Helm Chart
+        uses: hiberbee/github-action-helm@latest
+        with:
+          helm-command: upgrade conduit-app ./app/conduit-deploy/ --install --wait --namespace=default
+          
